@@ -2,7 +2,7 @@ from os.path import join
 import re
 import json
 import numpy as np
-from keras.models import model_from_json
+from util.keras import model_from_json
 from util.one_hot_encoding import one_hot_encoding
 from util.math import log_normalize
 
