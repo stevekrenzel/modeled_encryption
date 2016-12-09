@@ -1,0 +1,13 @@
+{
+  "alphabet": "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\n \u0000",
+  "normalizing_length": 50,
+  "priming_length": 75,
+  "boundary": " ",
+  "transformations": {
+    "_comment": "Uppercase everything, delete apostrophes, and replace any other non-alphanum chars with a single space. Then we force the data to be single-spaced.",
+    "translate": ["abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ"],
+    "substitutions": [["'", ""],
+                      ["[^a-zA-Z0-9 \n]+", " "],
+                      ["  +", " "]]
+  }
+}
