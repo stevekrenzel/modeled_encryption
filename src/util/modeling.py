@@ -96,7 +96,8 @@ def _scan_model(model, fn, init, xs, novelty=None):
     sequence = init[-sequence_length:]
     for x in xs:
         probabilities = model.predict(sequence, novelty)
-        scaled = scale(probabilities, MAX_INT, lowest=1)
+        # We use (MAX_INT + 1) because weights are chosen 0 <= w <= MAX_INT
+        scaled = scale(probabilities, MAX_INT + 1, lowest=1)
         (next_value, y) = fn(x, scaled)
         yield y
         sequence = (sequence + [next_value])[-sequence_length:]

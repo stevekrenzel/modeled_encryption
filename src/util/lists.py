@@ -23,34 +23,6 @@ def rfind(x, xs):
             return i
     return None
 
-def trim_tail(x, xs):
-    """Similar to 'trim' on a string, this will chop off consecutive occurences
-    of `x` that are present at the end of `xs`.
-
-    Example:
-        >> trim_tail(' ', ['a', 'b', 'c', ' ', ' ', ' '])
-        ['a', 'b', 'c']
-        >> trim_tail("!", "hello!!")
-        'hello'
-        >> trim_tail(1, [1, 1, 1, 2]
-        [1, 1, 1, 2]
-
-    Args:
-        x (obj): The value to trim from the end of `xs`.
-
-        xs (list): The list of items to trim.
-
-    Returns:
-        A new list that is equivalent to `xs` with the trailing `x` items
-        removed.
-    """
-    cutoff = len(xs)
-    for i in range(len(xs) - 1, -1, -1):
-        if xs[i] != x:
-            break
-        cutoff = i
-    return xs[:cutoff]
-
 def drop_tail_until(x, xs):
     """Removes all right-most elements from a list until a value is found.
 
@@ -75,6 +47,8 @@ def drop_tail_until(x, xs):
 
 def take(n, xs):
     """Takes the first `n` elements of `xs`.
+
+    This is useful when `xs` is a generator.
 
     Example:
         >> gen = (i for i in range(5))

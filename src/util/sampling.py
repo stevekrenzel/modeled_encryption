@@ -55,6 +55,9 @@ def choose_choice(weight, choices, weights):
         raise ValueError("Weights has length %s, but choices has length %s."
                          % (len(weights), len(choices)))
 
+    if len(choices) == 0:
+        raise ValueError("Can't have zero choices.")
+
     if weight < 0:
         raise ValueError("Weight, %s, can not be less than zero." % (weight))
 
@@ -64,7 +67,7 @@ def choose_choice(weight, choices, weights):
         if weight < total:
             return c
 
-    raise ValueError("Weight, %s, is larger than %s, the sum of all weights."
+    raise ValueError("Weight, %s, must be less than %s, the sum of all weights."
                     % (weight, total))
 
 def choose_weight(choice, choices, weights):
@@ -98,12 +101,12 @@ def choose_weight(choice, choices, weights):
     Examples:
         This is deterministic because each choice has one valid weight:
 
-        >> sample_weights("A", ["A", "B", "C"], [1,1,1])
+        >> choose_weights("A", ["A", "B", "C"], [1,1,1])
         0
 
         This is non-deterministic:
 
-        >> sample_weights("C", ["A", "B", "C"], [1,2,3])
+        >> choose_weights("C", ["A", "B", "C"], [1,2,3])
         4
 
     Args:
@@ -130,6 +133,8 @@ def choose_weight(choice, choices, weights):
         start, end = end, end + w
         if c == choice:
             break
+    else:
+        raise ValueError("Choice, %s, is not present in choices: %s" % (choice, choices))
 
     if start == end:
         return None # When weight is zero

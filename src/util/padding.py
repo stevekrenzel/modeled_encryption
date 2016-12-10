@@ -1,6 +1,6 @@
 from random import SystemRandom
 from .modeling import recite
-from .lists import drop_tail_until, trim_tail
+from .lists import drop_tail_until
 from .packing import BYTES_IN_INT
 from .randoms import random_ints
 
@@ -43,12 +43,18 @@ def pad(model, initial, values, blocksize):
         A list of values + padding.
 
     Raises:
+        ValueError: If blocksize is not a multiple of 4 or greater than 0.
+
         Exception: If padding fails to generate. This is a non-deterministic
         process, so trying again may work. This is extremely unlikely to be
         raised if you have any reasonable model.padding_novelty_growth_rate and
         model.max_padding_trials.
     """
-    if values[-1] != model.boundary:
+
+    if blocksize < 1 or blocksize % BYTES_IN_INT != 0:
+        raise ValueError("Blocksize must be greater than 0.")
+
+    if len(values) == 0 or values[-1] != model.boundary:
         values = values + [model.boundary]
 
     length = _base_length(model, values)
@@ -87,8 +93,11 @@ def unpad(model, values):
         A copy of `values` with the last token removed, or unchanged if there
         is only one token.
     """
-    trimmed = trim_tail(model.boundary, values)
-    return drop_tail_until(model.boundary, trimmed)
+    # Trim boundary if it's on the end then drop token.
+    if len(values) > 0 and values[-1] == model.boundary:
+        values = values[:-1]
+
+    return drop_tail_until(model.boundary, values)
 
 def _tokens(model, base):
     """ Generates a stream of tokens with increasing novelty. """
