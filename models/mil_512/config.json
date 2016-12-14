@@ -3,6 +3,7 @@
   "normalizing_length": 50,
   "priming_length": 75,
   "boundary": " ",
+  "novelty": 0.25,
   "transformations": {
     "_comment": "Uppercase everything, delete apostrophes, and replace any other non-alphanum chars with a single space. Then we force the data to be single-spaced.",
     "translate": ["abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ"],
