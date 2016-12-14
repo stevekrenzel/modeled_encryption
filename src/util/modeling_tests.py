@@ -4,7 +4,7 @@ from .modeling import tabulate, recite
 from model import Model
 
 class MockKerasModel(object):
-    """ A mock kera model with sequence_length of 5, alphabet of 2 characters,
+    """ A mock keras model with sequence_length of 5, alphabet of 2 characters,
     and always predicts each character with equal probability.
     """
 

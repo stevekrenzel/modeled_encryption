@@ -34,12 +34,15 @@ class Model(object):
             (e.g. ' ' for a model that generates words, or '.' for a model that
             generates sentences)
 
-        novelty (float: 1.0, optional): The novelty (a.k.a. temperature) to use
+        novelty (float: 0.4, optional): The novelty (a.k.a. temperature) to use
             when normalizing prediction weights. A smaller number will make
             the predictions more conservative.
 
         transformations (dict, optional): A dictionary describing how to
             transform data before running it through the model.
+
+            Translations are ran before substitutions. Substitutions are ran in
+            the order that they are defined.
 
             translate ((string, string), optional): A tuple with two strings of
                 same length. Characters from the first string will be replaced
@@ -93,7 +96,7 @@ class Model(object):
         self.max_padding_trials = config.get('max_padding_trials', 1000)
         self.padding_novelty_growth_rate = config.get('padding_novelty_growth_rate', 1.01)
         self.boundary = config['boundary']
-        self.novelty = config.get('novelty', 1.0)
+        self.novelty = config.get('novelty', 0.4)
         self._transformations = config.get('transformations', {})
         self.sequence_length = model.input_shape[1]
         self._validate()
@@ -102,6 +105,7 @@ class Model(object):
         """ Validates the config values provided to initialization. """
         if len(self.alphabet) != self.model.input_shape[2]:
             raise Exception("Model expects an alphabet of length %s, but the config provided an alphabet of length %s." % (self.model.input_shape[2], len(self.alphabet)))
+
         if self.boundary not in self.alphabet:
             raise Exception("The boundary must be preset in the alphabet.")
 
@@ -160,6 +164,10 @@ class Model(object):
 
         Returns:
             The transformed data.
+
+        Raises:
+            Exception: If data contains characters that aren't specified in the
+            alphabet, after all of the transformations are performed.
         """
         if 'translate' in self._transformations:
             translate = self._transformations['translate']
@@ -171,6 +179,10 @@ class Model(object):
             for (pattern, sub) in self._transformations['substitutions']:
                 regex = re.compile(pattern)
                 data = regex.sub(sub, data)
+
+        chars = set(self.alphabet)
+        if any(c not in chars for c in data):
+            raise Exception("Data contains non-alphabet characters post-transformation. Can't continue.")
 
         return data
 
