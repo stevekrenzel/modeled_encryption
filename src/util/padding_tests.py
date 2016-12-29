@@ -3,25 +3,7 @@ from random import choice
 from .packing import BYTES_IN_INT
 from .padding import pad, unpad
 from model import Model
-
-class MockKerasModel(object):
-    """ A mock keras model with sequence_length of 5, alphabet of 2 characters,
-    and always predicts each character with equal probability.
-    """
-
-    def __init__(self):
-        self.input_shape = (0, 0, 3)
-
-    def predict(self, sequence, verbose):
-        return [[1/3, 1/3, 1/3]]
-
-config = {
-    'alphabet': '012',
-    'normalizing_length': 0,
-    'priming_length': 0,
-    'max_padding_trials': 1000,
-    'boundary': '0'
-}
+from test.mock_keras import mock_keras
 
 class TestModeling(unittest.TestCase):
 
@@ -30,7 +12,7 @@ class TestModeling(unittest.TestCase):
 
         Note: This is a non-deterministic test, but should always pass.
         """
-        model = Model(MockKerasModel(), config)
+        model = mock_keras()
 
         # Blocksizes that aren't a multiple of BYTES_IN_INT should error.
         for i in range(BYTES_IN_INT):
@@ -60,7 +42,7 @@ class TestModeling(unittest.TestCase):
                 self.assertEqual(message, list(unpad(model, padded)))
 
     def test_unpad(self):
-        model = Model(MockKerasModel(), config)
+        model = mock_keras()
 
         self.assertEqual(unpad(model, ""), "")
         self.assertEqual(unpad(model, "0"), "")

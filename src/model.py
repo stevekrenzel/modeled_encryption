@@ -2,7 +2,7 @@ from os.path import join
 import re
 import json
 import numpy as np
-from util.keras import model_from_json
+from util.keras import Sequential, LSTM, Dense, Activation
 from util.one_hot_encoding import one_hot_encoding
 from util.math import log_normalize
 
@@ -14,6 +14,10 @@ class Model(object):
 
         alphabet (string): A string containing the entire alphabet of the
             model.
+
+        nodes (int): The number of nodes in the hidden layer of the the LSTM.
+
+        sequence_length (int): The length of the input sequence to the model.
 
         normalizing_length (int): The number of characters to run through a
             randomized model to normalize it's output distribution..
@@ -52,15 +56,18 @@ class Model(object):
                 expressions and the strings that should replace their matches.
 
     Args:
-        model (Model): The Keras model that has been trained on a given domain.
-
         config (dict): A config object containing various parameters related to
             prediction. See above for description.
+
+        model_builder (self -> keras model): A function that returns an
+        instantiated keras model.
 
     Attrs:
         model (Keras Model): The Keras model.
 
         alphabet (string): The string of all characters in the model's alphabet.
+
+        nodes (int): The number of nodes in the hidden layer of the the LSTM.
 
         normalizing_length (int): The number of characters to generate when
             normalizing the model.
@@ -88,9 +95,10 @@ class Model(object):
         Exception: If the boundary isn't present in the alphabet.
     """
 
-    def __init__(self, model, config):
-        self.model = model
+    def __init__(self, config, model_builder):
         self.alphabet = sorted(config['alphabet'])
+        self.nodes = config['nodes']
+        self.sequence_length = config['sequence_length']
         self.normalizing_length = config['normalizing_length']
         self.priming_length = config['priming_length']
         self.max_padding_trials = config.get('max_padding_trials', 1000)
@@ -98,14 +106,11 @@ class Model(object):
         self.boundary = config['boundary']
         self.novelty = config.get('novelty', 0.4)
         self._transformations = config.get('transformations', {})
-        self.sequence_length = model.input_shape[1]
         self._validate()
+        self.model = model_builder(self)
 
     def _validate(self):
         """ Validates the config values provided to initialization. """
-        if len(self.alphabet) != self.model.input_shape[2]:
-            raise Exception("Model expects an alphabet of length %s, but the config provided an alphabet of length %s." % (self.model.input_shape[2], len(self.alphabet)))
-
         if self.boundary not in self.alphabet:
             raise Exception("The boundary must be preset in the alphabet.")
 
@@ -186,6 +191,32 @@ class Model(object):
 
         return data
 
+def create_keras_model(directory=None):
+    def fn(base):
+        alphabet_size = len(base.alphabet)
+
+        input_shape = (base.sequence_length, alphabet_size)
+        loss = 'categorical_crossentropy'
+        optimizer = 'adadelta'
+        metrics = ['accuracy']
+
+        hidden_layer = LSTM(base.nodes,
+                            input_shape=input_shape,
+                            consume_less="cpu")
+        output_layer = Dense(alphabet_size)
+        activation = Activation('softmax')
+
+        model = Sequential()
+        model.add(hidden_layer)
+        model.add(output_layer)
+        model.add(activation)
+        model.compile(loss=loss, optimizer=optimizer, metrics=metrics)
+        if directory != None:
+            model.load_weights(join(directory, 'model.weights'))
+
+        return model
+    return fn
+
 def load_model(directory):
     """Loads a model from a given directory.
 
@@ -203,11 +234,8 @@ def load_model(directory):
     Raises:
         Exception: If the model config fails to validate.
     """
-    with open(join(directory, 'model.json')) as model_file:
-        model = model_from_json(model_file.read())
-    model.load_weights(join(directory, 'model.weights'))
-
     with open(join(directory, 'config.json')) as config_file:
         config = json.load(config_file)
 
-    return Model(model, config)
+    model = Model(config, create_keras_model(directory))
+    return model
