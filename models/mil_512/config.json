@@ -1,5 +1,7 @@
 {
   "alphabet": "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\n \u0000",
+  "nodes": 512,
+  "sequence_length": 50,
   "normalizing_length": 50,
   "priming_length": 75,
   "boundary": " ",
