@@ -1,5 +1,5 @@
 import unittest
-from .packing import pack_ints, unpack_ints
+from util.packing import pack_ints, unpack_ints
 
 class TestPacking(unittest.TestCase):
 

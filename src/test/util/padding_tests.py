@@ -1,7 +1,7 @@
 import unittest
 from random import choice
-from .packing import BYTES_IN_INT
-from .padding import pad, unpad
+from util.packing import BYTES_IN_INT
+from util.padding import pad, unpad
 from model import Model
 from test.mock_keras import mock_keras
 

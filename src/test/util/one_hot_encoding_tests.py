@@ -1,5 +1,5 @@
 import unittest
-from .one_hot_encoding import one_hot_encoding
+from util.one_hot_encoding import one_hot_encoding
 
 def ohe(xs, classes):
     return one_hot_encoding(xs, classes).tolist()

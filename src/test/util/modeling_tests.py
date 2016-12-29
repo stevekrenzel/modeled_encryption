@@ -1,6 +1,6 @@
 import unittest
 from random import choice
-from .modeling import tabulate, recite
+from util.modeling import tabulate, recite
 from test.mock_keras import mock_keras
 
 config = {

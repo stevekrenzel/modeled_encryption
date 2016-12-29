@@ -1,5 +1,5 @@
 import unittest
-from .lists import rfind, drop_tail_until, take
+from util.lists import rfind, drop_tail_until, take
 
 class TestLists(unittest.TestCase):
 

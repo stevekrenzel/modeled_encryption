@@ -1,5 +1,5 @@
 import unittest
-from .sampling import choose_choice, choose_weight
+from util.sampling import choose_choice, choose_weight
 
 class TestSampling(unittest.TestCase):
 

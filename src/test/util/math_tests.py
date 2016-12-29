@@ -1,5 +1,5 @@
 import unittest
-from .math import log_normalize, scale
+from util.math import log_normalize, scale
 
 class TestLists(unittest.TestCase):
 
