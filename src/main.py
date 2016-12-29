@@ -1,7 +1,7 @@
 import argparse
 from sys import stdout, argv, exit
 from getpass import getpass
-from base64 import a85encode, a85decode
+from base64 import b64encode, b64decode
 from model import load_model
 from encryption import encrypt, decrypt
 from util.io import confirmed_get_pass, read_file
@@ -17,7 +17,7 @@ def encrypt_command(args):
     model = load_model(args.model)
     plaintext = read_file(args.file)
     encrypted = encrypt(model, key, plaintext)
-    encoded = str(a85encode(encrypted), 'utf-8')
+    encoded = str(b64encode(encrypted), 'utf-8')
     stdout.write(encoded)
 
 def decrypt_command(args):
@@ -27,7 +27,7 @@ def decrypt_command(args):
 
     model = load_model(args.model)
     encoded = read_file(args.file)
-    ciphertext = a85decode(encoded)
+    ciphertext = b64decode(encoded)
     decrypted = decrypt(model, key, ciphertext)
     stdout.write(decrypted)
 
