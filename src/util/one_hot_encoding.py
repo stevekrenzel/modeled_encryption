@@ -31,7 +31,7 @@ def one_hot_encoding(xs, classes):
         ValueError: If a value is present in `xs` that isn't in `classes`.
     """
     # Maps a class to it's corresponding index
-    lookup = dict((x, i) for i, x in enumerate(classes))
+    lookup = {x:i for i, x in enumerate(classes)}
 
     X = zeros((len(xs), len(classes)), dtype=np.bool)
     for i, x in enumerate(xs):
