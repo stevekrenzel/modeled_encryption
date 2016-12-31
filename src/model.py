@@ -1,10 +1,14 @@
-from os.path import join
+from os.path import join, isfile
 import re
 import json
 import numpy as np
+from functools import partial
+from random import choice
 from util.keras import Sequential, LSTM, Dense, Activation
 from util.one_hot_encoding import one_hot_encoding
 from util.math import log_normalize
+from util.modeling import recite
+from util.randoms import random_ints
 
 class Model(object):
     """Contains the Keras model and related configuration values to
@@ -157,6 +161,45 @@ class Model(object):
         probabilities = self.model.predict(nested, verbose=0)[0]
         return log_normalize(probabilities, novelty)
 
+    def train(self, data, batch_size=256, epochs=200, validation_split=0.05):
+        """ Trains the model on the provided data.
+
+        This will print out a summary of the model structure, followed by
+        metrics and progress on training. After each epoch, the weights will
+        be saved to the model's directory, if one is provided.
+
+        Args:
+            data (string): The data to train the model on.
+
+            batch_size (int): The batch size for training.
+
+            epochs (int): The number of times to train on the entire data set.
+
+            validation_split (float): The percentage of data to use for validation.
+
+        Returns:
+            Nothing. Updates the internal state of the model.
+        """
+        self.model.summary()
+        transformed = self.transform(data)
+        encoded = one_hot_encoding(transformed, self.alphabet)
+        X = np.array([encoded[i : i + self.sequence_length] for i in range(len(encoded) - self.sequence_length)])
+        y = np.array(encoded[self.sequence_length:])
+        for i in range(epochs):
+            print()
+            print("-" * 79)
+            print("Epoch %s" % (i))
+            self.model.fit(X, y, validation_split=validation_split, batch_size=batch_size, nb_epoch=1, shuffle=True)
+            #if self.directory != None:
+            #    pass
+            #    #self.model.save(join(self.directory, 'model.weights'))
+
+    def sample(self, size):
+        """ Generates sample output from the model. """
+        initial = [choice(self.alphabet) for _ in range(self.sequence_length)]
+        sequence = recite(self, initial, random_ints())
+        return "".join(c for (c, _) in zip(sequence, range(size)))
+
     def transform(self, data):
         """Applies the model's transformations to the supplied data.
 
@@ -191,42 +234,42 @@ class Model(object):
 
         return data
 
-def create_keras_model(directory=None):
-    def fn(base):
-        alphabet_size = len(base.alphabet)
+def create_keras_model(directory, load_weights, base):
+    alphabet_size = len(base.alphabet)
 
-        input_shape = (base.sequence_length, alphabet_size)
-        loss = 'categorical_crossentropy'
-        optimizer = 'adadelta'
-        metrics = ['accuracy']
+    input_shape = (base.sequence_length, alphabet_size)
+    loss = 'categorical_crossentropy'
+    optimizer = 'adadelta'
+    metrics = ['accuracy']
 
-        hidden_layer = LSTM(base.nodes,
-                            input_shape=input_shape,
-                            consume_less="cpu")
-        output_layer = Dense(alphabet_size)
-        activation = Activation('softmax')
+    hidden_layer = LSTM(base.nodes,
+                        input_shape=input_shape,
+                        consume_less="cpu")
+    output_layer = Dense(alphabet_size)
+    activation = Activation('softmax')
 
-        model = Sequential()
-        model.add(hidden_layer)
-        model.add(output_layer)
-        model.add(activation)
-        model.compile(loss=loss, optimizer=optimizer, metrics=metrics)
-        if directory != None:
-            model.load_weights(join(directory, 'model.weights'))
+    model = Sequential()
+    model.add(hidden_layer)
+    model.add(output_layer)
+    model.add(activation)
+    model.compile(loss=loss, optimizer=optimizer, metrics=metrics)
 
-        return model
-    return fn
+    weights_path = join(directory, 'model.weights')
+    if load_weights and isfile(weights_path):
+        model.load_weights(weights_path)
 
-def load_model(directory):
+    return model
+
+def load_model(directory, load_weights=True):
     """Loads a model from a given directory.
 
-    The directory should contain three files:
-        1) model.json - output from the Keras model.
-        2) model.weights - output from the Keras model.
-        3) config.json - config describing metadata about the model.
+    The directory should contain two files:
+        1) model.weights - output from the Keras model.
+        2) config.json - config describing metadata about the model.
 
     Args:
         directory (string): The directory containing the files to load the model
+        load_weights (bool): Whether or not to use the existing weights file
 
     Returns:
         The loaded model.
@@ -237,5 +280,6 @@ def load_model(directory):
     with open(join(directory, 'config.json')) as config_file:
         config = json.load(config_file)
 
-    model = Model(config, create_keras_model(directory))
+    builder = partial(create_keras_model, directory, load_weights)
+    model = Model(config, builder)
     return model
