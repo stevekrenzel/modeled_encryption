@@ -56,46 +56,46 @@ Example Usage:
   =============================================================================
 
   - Encrypt a file:
-    $ menc encrypt -c models/mil_512/config.json -f filename
+    $ menc encrypt -c models/military/config.json -f filename
 
   - Encrypt from stdin:
-    $ echo 'Hello World!' | menc encrypt -c models/mil_512/config.json
+    $ echo 'Hello World!' | menc encrypt -c models/military/config.json
 
   - Encrypt from stdin, key provided as arg:
-    $ echo 'Hello World!' | menc encrypt -c models/mil_512/config.json -k foo
+    $ echo 'Hello World!' | menc encrypt -c models/military/config.json -k foo
 
   - Store encrypted result into a file:
-    $ echo 'Hello World!' | menc encrypt -c models/mil_512/config.json > encrypted_file
+    $ echo 'Hello World!' | menc encrypt -c models/military/config.json > encrypted_file
 
   - Decrypt a file:
-    $ menc decrypt -c models/mil_512/config.json -f filename
+    $ menc decrypt -c models/military/config.json -f filename
 
   - Decrypt from stdin:
-    $ cat encrypted | menc decrypt -c models/mil_512/config.json
+    $ cat encrypted | menc decrypt -c models/military/config.json
 
   - Decrypt from stdin, key provided as arg:
-    $ cat encrypted | menc decrypt -c models/mil_512/config.json -k foo
+    $ cat encrypted | menc decrypt -c models/military/config.json -k foo
 
   - Store decrypted result into a file:
-    $ cat encrypted | menc -c models/mil_512/config.json > decrypted_file
+    $ cat encrypted | menc -c models/military/config.json > decrypted_file
 
   - Round-trip (encrypt and then decrypt):
-    $ echo 'Hello world!' | menc encrypt -c models/mil_512/config.json -k foo | menc decrypt -c models/mil_512/config.json -k foo
+    $ echo 'Hello world!' | menc encrypt -c models/military/config.json -k foo | menc decrypt -c models/military/config.json -k foo
 
   Training
   =============================================================================
 
   - Train from data in a file:
-    $ menc train -c models/mil_512/config.json -d models/mil_512/data.txt
+    $ menc train -c models/military/config.json -d models/military/data.txt
 
   - Train from stdin:
-    $ cat models/mil_512/data.txt | menc train -c models/mil_512/config.json
+    $ cat models/military/data.txt | menc train -c models/military/config.json
 
   Sampling
   =============================================================================
 
   - Generate a random sequence of length 100:
-    $ menc sample -c models/mil_512/config.json -s 100""")
+    $ menc sample -c models/military/config.json -s 100""")
     subparsers = parser.add_subparsers()
 
     encrypt_parser = subparsers.add_parser('encrypt', help="Encrypt a plaintext.")
@@ -115,7 +115,7 @@ Example Usage:
     train_parser.add_argument('-d', '--data', help="Path to data to train on.")
     train_parser.set_defaults(func=train_command)
 
-    sample_parser = subparsers.add_parser('sample', help="Sample the model by generating a random sequence from it.")
+    sample_parser = subparsers.add_parser('sample', help="Sample a random sequence from a model.")
     sample_parser.add_argument('-c', '--config', metavar="CONFIG_PATH", help="Path to the model config.", required=True)
     sample_parser.add_argument('-s', '--size', help="Length of the sequence to generate.")
     sample_parser.set_defaults(func=sample_command)
