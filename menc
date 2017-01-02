@@ -1,2 +1,3 @@
 #!/bin/bash
+# Run ./menc for list of options
 python src/main.py "$@"
