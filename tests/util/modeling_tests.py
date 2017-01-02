@@ -1,7 +1,7 @@
 import unittest
 from random import choice
 from util.modeling import tabulate, recite
-from test.mock_model import config, mock_model
+from mock_model import config, mock_model
 
 class TestModeling(unittest.TestCase):
 

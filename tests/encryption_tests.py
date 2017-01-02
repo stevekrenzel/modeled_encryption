@@ -1,7 +1,7 @@
 import unittest
 from random import choice
 from encryption import encrypt, decrypt
-from test.mock_model import mock_model
+from mock_model import mock_model
 
 class TestEncryption(unittest.TestCase):
 

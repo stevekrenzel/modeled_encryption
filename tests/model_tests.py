@@ -1,7 +1,7 @@
 import unittest
 from random import choice
 from encoding import encode, decode
-from test.mock_model import mock_model, config
+from mock_model import mock_model, config
 
 class TestModel(unittest.TestCase):
 

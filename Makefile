@@ -1,2 +1,2 @@
 test:
-	python -m unittest discover -s src -p '*_tests.py'
+	PYTHONPATH='src':'tests' python -m unittest discover -s . -p '*_tests.py'

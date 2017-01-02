@@ -3,7 +3,7 @@ from random import choice
 from util.packing import BYTES_IN_INT
 from util.padding import pad, unpad
 from model import Model
-from test.mock_model import mock_model
+from mock_model import mock_model
 
 class TestPadding(unittest.TestCase):
 
