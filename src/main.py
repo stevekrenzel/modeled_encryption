@@ -1,5 +1,5 @@
 import argparse
-from sys import stdout, argv, exit
+from sys import argv, exit
 from getpass import getpass
 from base64 import b64encode, b64decode
 from model import load_model
@@ -20,7 +20,7 @@ def encrypt_command(args):
     plaintext = read_file(args.file).rstrip()
     encrypted = encrypt(model, key, plaintext)
     encoded = str(b64encode(encrypted), 'utf-8')
-    stdout.write(encoded)
+    print(encoded)
 
 def decrypt_command(args):
     key = args.key
@@ -31,7 +31,7 @@ def decrypt_command(args):
     encoded = read_file(args.file)
     ciphertext = b64decode(encoded)
     decrypted = decrypt(model, key, ciphertext)
-    stdout.write(decrypted)
+    print(decrypted)
 
 def train_command(args):
     model = load_model(args.config)
