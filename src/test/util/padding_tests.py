@@ -3,16 +3,16 @@ from random import choice
 from util.packing import BYTES_IN_INT
 from util.padding import pad, unpad
 from model import Model
-from test.mock_keras import mock_keras
+from test.mock_model import mock_model
 
-class TestModeling(unittest.TestCase):
+class TestPadding(unittest.TestCase):
 
     def test_padding(self):
         """ Test round-tripping padding.
 
         Note: This is a non-deterministic test, but should always pass.
         """
-        model = mock_keras()
+        model = mock_model()
 
         # Blocksizes that aren't a multiple of BYTES_IN_INT should error.
         for i in range(BYTES_IN_INT):
@@ -42,7 +42,7 @@ class TestModeling(unittest.TestCase):
                 self.assertEqual(message, list(unpad(model, padded)))
 
     def test_unpad(self):
-        model = mock_keras()
+        model = mock_model()
 
         self.assertEqual(unpad(model, ""), "")
         self.assertEqual(unpad(model, "0"), "")

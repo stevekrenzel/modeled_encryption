@@ -1,11 +1,23 @@
 {
-  "alphabet": "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\n \u0000",
-  "nodes": 512,
-  "sequence_length": 50,
-  "normalizing_length": 50,
-  "priming_length": 75,
-  "boundary": " ",
-  "novelty": 0.25,
+  "model": {
+    "alphabet": "\u0000\n 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+    "nodes": 512,
+    "sequence_length": 50,
+    "boundary": " ",
+    "weights_file": "./model.weights"
+  },
+  "encoding": {
+    "normalizing_length": 50,
+    "priming_length": 75,
+    "max_padding_trials": 1000,
+    "padding_novelty_growth_rate": 1.01,
+    "novelty": 0.25
+  },
+  "training": {
+    "validation_split": 0.05,
+    "batch_size": 256,
+    "epochs": 200
+  },
   "transformations": {
     "_comment": "Uppercase everything, delete apostrophes, and replace any other non-alphanum chars with a single space. Then we force the data to be single-spaced.",
     "translate": ["abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ"],

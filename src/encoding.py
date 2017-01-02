@@ -110,7 +110,10 @@ def _initialize(model, randoms):
 
     Example:
         >> from random import randint
-        >> length = model.sequence_length + model.normalizing_length + model.priming_length
+        >> sequence_length = model.config.model.sequence_length
+        >> normalizing_length = model.config.encoding.normalizing_length
+        >> priming_length = model.config.encoding.priming_length
+        >> length = sequence_length + normalizing_length + priming_length
         >> randoms = [randint(0, 2**32 - 1) for _ in range(length)]
         >>
         >> (weights, sequence) = _initialize(model, to_generator(randoms))
@@ -130,14 +133,18 @@ def _initialize(model, randoms):
         A tuple containing the list of weights used to generate the sequence,
         and the sequence itself.
     """
-    seed = take(model.sequence_length, randoms)
-    normals = take(model.normalizing_length, randoms)
-    priming = take(model.priming_length, randoms)
+    sequence_length = model.config.model.sequence_length
+    normalizing_length = model.config.encoding.normalizing_length
+    priming_length = model.config.encoding.priming_length
+
+    seed = take(sequence_length, randoms)
+    normals = take(normalizing_length, randoms)
+    priming = take(priming_length, randoms)
 
     start = _seed_sequence(model, seed)
     primed = list(recite(model, start, normals + priming))
     unpadded = unpad(model, primed) # Removes any partial tokens at end
-    return (seed + normals + priming, start + unpadded[-model.sequence_length:])
+    return (seed + normals + priming, start + unpadded[-sequence_length:])
 
 def _seed_sequence(model, seed):
     """Generates a uniformly random sequence drawn from the model's alphabet.
@@ -168,6 +175,6 @@ def _seed_sequence(model, seed):
             sequence.
 
     """
-    alphabet = model.alphabet
+    alphabet = model.config.model.alphabet
     alphabet_size = len(alphabet)
     return [alphabet[r % alphabet_size] for r in seed]

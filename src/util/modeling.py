@@ -27,8 +27,10 @@ def tabulate(model, initial, values, novelty=None):
         A list of randomized weights corresponding to the model's probability
         of predicting each value.
     """
+    alphabet = model.config.model.alphabet
+
     def fn(value, weights):
-        weight = choose_weight(value, model.alphabet, weights)
+        weight = choose_weight(value, alphabet, weights)
         return (value, weight)
 
     return _scan_model(model, fn, initial, values, novelty)
@@ -55,8 +57,10 @@ def recite(model, initial, weights, novelty=None):
     Returns (generator):
         A sequence of values as chosen by the provided weights.
     """
+    alphabet = model.config.model.alphabet
+
     def fn(weight, weights):
-        value = choose_choice(weight, model.alphabet, weights)
+        value = choose_choice(weight, alphabet, weights)
         return (value, value)
 
     return _scan_model(model, fn, initial, weights, novelty)
@@ -92,7 +96,7 @@ def _scan_model(model, fn, init, xs, novelty=None):
     Returns (generator):
         A sequence of the values computed by `fn`.
     """
-    sequence_length = model.sequence_length
+    sequence_length = model.config.model.sequence_length
     sequence = init[-sequence_length:]
     for x in xs:
         probabilities = model.predict(sequence, novelty)

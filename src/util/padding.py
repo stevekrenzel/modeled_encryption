@@ -47,15 +47,16 @@ def pad(model, initial, values, blocksize):
 
         Exception: If padding fails to generate. This is a non-deterministic
         process, so trying again may work. This is extremely unlikely to be
-        raised if you have any reasonable model.padding_novelty_growth_rate and
-        model.max_padding_trials.
+        raised if you have any reasonable padding_novelty_growth_rate and
+        max_padding_trials in your config.
     """
 
     if blocksize < 1 or blocksize % BYTES_IN_INT != 0:
         raise ValueError("Blocksize must be greater than 0.")
 
-    if len(values) == 0 or values[-1] != model.boundary:
-        values = values + [model.boundary]
+    boundary = model.config.model.boundary
+    if len(values) == 0 or values[-1] != boundary:
+        values = values + [boundary]
 
     length = _base_length(model, values)
     block_capacity = blocksize // BYTES_IN_INT
@@ -93,11 +94,13 @@ def unpad(model, values):
         A copy of `values` with the last token removed, or unchanged if there
         is only one token.
     """
+    boundary = model.config.model.boundary
+
     # Trim boundary if it's on the end then drop token.
-    if len(values) > 0 and values[-1] == model.boundary:
+    if len(values) > 0 and values[-1] == boundary:
         values = values[:-1]
 
-    return drop_tail_until(model.boundary, values)
+    return drop_tail_until(boundary, values)
 
 def _tokens(model, base):
     """ Generates a stream of tokens with increasing novelty. """
@@ -106,8 +109,11 @@ def _tokens(model, base):
 
 def _novelities(model):
     """ A sequence of increasing novelities. """
-    for i in range(model.max_padding_trials):
-        yield model.novelty * (model.padding_novelty_growth_rate ** i)
+    trials = model.config.encoding.max_padding_trials
+    growth_rate = model.config.encoding.padding_novelty_growth_rate
+    novelty = model.config.encoding.novelty
+    for i in range(trials):
+        yield novelty * (growth_rate ** i)
 
 def _generate_token(model, start, novelty):
     """Generates a random single token following the `start` sequence.
@@ -136,16 +142,17 @@ def _generate_token(model, start, novelty):
     """
     # Non-deterministic. If `boundary` has a low prob of being generated, this
     # could take a while to run.
+    boundary = model.config.model.boundary
     stream = recite(model, start, random_ints(), novelty) # Infinite stream
     token = []
     for c in stream:
         token.append(c)
-        if c == model.boundary:
+        if c == boundary:
             return token
 
 def _base_length(model, values):
     """ Returns the length of the payload without padding. """
-    init = model.sequence_length
-    norm = model.normalizing_length
-    prim = model.priming_length
+    init = model.config.model.sequence_length
+    norm = model.config.encoding.normalizing_length
+    prim = model.config.encoding.priming_length
     return init + norm + prim + len(values)
