@@ -93,7 +93,7 @@ class Model(object):
             Nothing. Updates the internal state of the model.
         """
         alphabet = self.config.model.alphabet
-        sequence_length = self.config.encoding.sequence_length
+        sequence_length = self.config.model.sequence_length
         batch_size = self.config.training.batch_size
         epochs = self.config.training.epochs
         validation_split = self.config.training.validation_split
@@ -110,6 +110,9 @@ class Model(object):
             print("Epoch %s" % (i))
             self.model.fit(X, y, validation_split=validation_split, batch_size=batch_size, nb_epoch=1, shuffle=True)
             self.model.save(weights_file)
+            print("Saved weights to '%s'" % (weights_file))
+            print("Sampling model: ")
+            print(self.sample(50))
 
     def sample(self, size):
         """ Generates sample output from the model.
