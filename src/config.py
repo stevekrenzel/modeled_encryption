@@ -1,6 +1,6 @@
 """ Handles loading / parsing config files. """
 # XXX - This impl stretches namedtuples a little far, doesn't do type
-# validation on values, and gives a shitty / not very helpful error messages
+# validation on values, and gives a shitty / not very helpful error message
 # when a field is missing. This can all be improved.
 
 import json
