@@ -130,7 +130,7 @@ class Model(object):
         alphabet = self.config.model.alphabet
         sequence_length = self.config.model.sequence_length
 
-        initial = [choice(alphabet) for _ in range(sequence_length)]
+        initial = [choice(alphabet) for _ in range(sequence_length - 1)] + [self.config.model.boundary]
         sequence = recite(self, initial, random_ints())
         return "".join(c for (c, _) in zip(sequence, range(size)))
 
