@@ -41,7 +41,8 @@ def train_command(args):
 def sample_command(args):
     model = load_model(args.config)
     size = int(args.size)
-    print(model.sample(size))
+    novelty = None if args.novelty == None else float(args.novelty)
+    print(model.sample(size, novelty))
 
 def main():
     parser = argparse.ArgumentParser(
@@ -117,7 +118,8 @@ Example Usage:
 
     sample_parser = subparsers.add_parser('sample', help="Sample a random sequence from a model.")
     sample_parser.add_argument('-c', '--config', metavar="CONFIG_PATH", help="Path to the model config.", required=True)
-    sample_parser.add_argument('-s', '--size', help="Length of the sequence to generate.")
+    sample_parser.add_argument('-s', '--size', help="Length of the sequence to generate.", required=True)
+    sample_parser.add_argument('-n', '--novelty', help="A float that determines how conservative the predictions are. Lower is more conservative. Typical ranges are 0.1 to 2.0.")
     sample_parser.set_defaults(func=sample_command)
 
     args = parser.parse_args()
